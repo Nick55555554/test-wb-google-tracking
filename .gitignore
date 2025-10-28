@@ -40,4 +40,5 @@ Thumbs.db
 *.sqlite3
 
 tmp/
-temp/
+temp/src/assets/
+*.json
