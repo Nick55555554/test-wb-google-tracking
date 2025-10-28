@@ -42,3 +42,5 @@ Thumbs.db
 tmp/
 temp/src/assets/
 *.json
+src/assets/
+*.json
