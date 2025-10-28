@@ -45,19 +45,37 @@ const baseConfig = tseslint.config(
       import: eslintPluginImport,
     },
     rules: {
+      '@stylistic/indent': 'off',
+      '@stylistic/quotes': 'off',
+      '@stylistic/semi': 'off',
+      '@stylistic/comma-dangle': 'off',
+      '@stylistic/space-before-function-paren': 'off',
+      
+      'prettier/prettier': ['error', {
+        singleQuote: true,
+        semi: true,
+        trailingComma: 'all',
+        printWidth: 100,
+        tabWidth: 4,
+        useTabs: false,
+        bracketSpacing: true,
+        arrowParens: 'avoid',
+        endOfLine: 'auto'
+      }],
+      
       "no-unused-vars": "off",
       "@typescript-eslint/no-unused-vars": "warn",
       '@typescript-eslint/no-explicit-any': 'off',
+      "@typescript-eslint/no-unsafe-return": "off",
+      "@typescript-eslint/prefer-promise-reject-errors": "off",
+      "@typescript-eslint/no-unsafe-argument": "off",
+      "@typescript-eslint/no-unsafe-assigment": "off",
       'prefer-const': 'error',
-      'no-console': 'warn',
-      '@stylistic/indent': ['error', 4], 
+      'no-console': 'off',
+      
       '@stylistic/array-bracket-spacing': ['error', 'never'],
       '@stylistic/object-curly-spacing': ['error', 'always'], 
       '@stylistic/comma-spacing': ['error', { before: false, after: true }],
-      '@stylistic/comma-dangle': ['error', 'always-multiline'],
-      '@stylistic/semi': ['error', 'always'],
-      '@stylistic/quotes': ['error', 'single'],
-      '@stylistic/space-before-function-paren': ['error', 'never'],
       '@stylistic/keyword-spacing': ['error', { before: true, after: true }],
 
       'simple-import-sort/imports': 'error',

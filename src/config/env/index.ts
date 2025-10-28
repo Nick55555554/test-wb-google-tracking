@@ -2,7 +2,7 @@
 import { config } from 'dotenv';
 import { z } from 'zod';
 
-config({ path: '.env' }); 
+config({ path: '.env' });
 
 const envSchema = z.object({
     POSTGRES_HOST: z.string().optional().default('localhost'),
@@ -19,11 +19,13 @@ if (!result.success) {
     console.warn('Env validation warnings:', result.error);
 }
 
-export default result.success ? result.data : {
-  POSTGRES_HOST: 'localhost',
-  POSTGRES_PORT: '5432',
-  POSTGRES_DB: 'postgres',
-  POSTGRES_USER: 'postgres',
-  POSTGRES_PASSWORD: 'postgres',
-  NODE_ENV: 'development',
-};
+export default result.success
+    ? result.data
+    : {
+          POSTGRES_HOST: 'localhost',
+          POSTGRES_PORT: '5432',
+          POSTGRES_DB: 'postgres',
+          POSTGRES_USER: 'postgres',
+          POSTGRES_PASSWORD: 'postgres',
+          NODE_ENV: 'development',
+      };
