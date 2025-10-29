@@ -20,9 +20,12 @@ export class TariffSyncService {
             const response: BoxTariffResponse = await query.get('/tariffs/box');
             const warehouseList = response.response.data.warehouseList;
 
-            await TariffRepository.upsert(warehouseList, trx);
+            await TariffRepository.syncTariffs(warehouseList, trx);
+
+            console.log('Tariffs synced successfully');
         } catch (error) {
             console.error('Error in tariff sync:', error);
+            throw error;
         }
     }
 }

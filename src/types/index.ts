@@ -1,5 +1,6 @@
 export interface Tariff {
     id: string;
+    date: string;
     warehouseName: string;
     geoName: string;
     boxDeliveryBase: string;

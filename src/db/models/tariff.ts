@@ -5,8 +5,9 @@ import snakecaseKeys from 'snakecase-keys';
 import { Tariff as TariffType, WarehouseTariff } from '@/types';
 
 export type CreateTariffData = WarehouseTariff & {
-    date: string;
+    date: string; // Дата YYYY-MM-DD
 };
+
 export class Tariff implements TariffType {
     static readonly tableName = 'tariffs';
     static readonly idColumn = 'id';
@@ -15,21 +16,44 @@ export class Tariff implements TariffType {
         return (trx || knex)(this.tableName);
     }
 
-    static async upsert(data: CreateTariffData[], trx: Knex): Promise<TariffType[]> {
+    // Новый метод для вставки новых данных
+    static async insert(data: CreateTariffData[], trx: Knex): Promise<TariffType[]> {
         const snakeCaseData = data.map(item => snakecaseKeys(item, { deep: true }));
 
-        const result = await this.query(trx)
-            .insert(snakeCaseData)
-            .onConflict(['date', 'warehouse_name', 'geo_name'])
-            .merge()
-            .returning('*');
+        const result = await this.query(trx).insert(snakeCaseData).returning('*');
 
         return camelcaseKeys(result, { deep: true });
     }
 
-    static async getById(id: string, trx: Knex): Promise<TariffType | null> {
-        const result = await this.query(trx).where({ id }).limit(1).first();
-        return result ? camelcaseKeys(result, { deep: true }) : null;
+    static async update(data: CreateTariffData[], trx: Knex): Promise<void> {
+        const today = new Date().toISOString().split('T')[0];
+
+        for (const item of data) {
+            const snakeCaseItem = snakecaseKeys(item, { deep: true });
+
+            await this.query(trx)
+                .where({
+                    date: today,
+                    warehouse_name: snakeCaseItem.warehouse_name,
+                    geo_name: snakeCaseItem.geo_name,
+                })
+                .update(snakeCaseItem);
+        }
+    }
+
+    static async getByDate(date: string, trx: Knex): Promise<TariffType[]> {
+        const results = await this.query(trx).where({ date });
+        return camelcaseKeys(results, { deep: true });
+    }
+
+    static async getToday(trx: Knex): Promise<TariffType[]> {
+        const today = new Date().toISOString().split('T')[0];
+        return this.getByDate(today, trx);
+    }
+
+    static async existsForDate(date: string, trx: Knex): Promise<boolean> {
+        const result = await this.query(trx).where({ date }).limit(1).first();
+        return !!result;
     }
 
     static async getAll(trx: Knex): Promise<TariffType[]> {
@@ -37,13 +61,10 @@ export class Tariff implements TariffType {
         return camelcaseKeys(results, { deep: true });
     }
 
-    static async delete(id: string, trx: Knex) {
-        return this.query(trx).delete().where({ id });
-    }
-
     id!: TariffType['id'];
     warehouseName!: TariffType['warehouseName'];
     geoName!: TariffType['geoName'];
+    date!: TariffType['date'];
 
     boxDeliveryBase!: TariffType['boxDeliveryBase'];
     boxDeliveryCoefExpr!: TariffType['boxDeliveryCoefExpr'];
