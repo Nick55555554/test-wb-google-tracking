@@ -20,8 +20,8 @@
 1. **Клонируйте репозиторий:**
 
    ```bash
-   git clone <repository-url>
-   cd <repository-directory>
+   git clone https://github.com/Nick55555554/test-wb_google-sheets_tracking
+   cd test-wb_google-sheets_tracking
    ```
 
 2. **Создайте файл `.env` в корне проекта** со следующим содержимым:
