@@ -1,11 +1,11 @@
 import { google } from 'googleapis';
 import { Knex } from 'knex';
-import path from 'path';
 
 import { TariffRepository } from '@/repositories/tariff-repository';
 import { WarehouseTariff } from '@/types';
+import { formatReadableDate, sortTariffs } from '@/utils';
 
-const SERVICE_PATH = path.join(__dirname, '../../assets/enduring-byte-476519-d3-759200f93022.json');
+const { GOOGLE_CLIENT_EMAIL, GOOGLE_PRIVATE_KEY, GOOGLE_SCOPES } = process.env;
 
 export class GoogleSheetsService {
     private sheets = google.sheets('v4');
@@ -13,9 +13,18 @@ export class GoogleSheetsService {
     private spreadsheetId: string;
 
     constructor(spreadsheetId: string) {
+        if (!GOOGLE_CLIENT_EMAIL || !GOOGLE_PRIVATE_KEY) {
+            throw new Error(
+                'Missing required environment variables: GOOGLE_CLIENT_EMAIL and GOOGLE_PRIVATE_KEY',
+            );
+        }
+
         this.auth = new google.auth.GoogleAuth({
-            keyFile: SERVICE_PATH,
-            scopes: ['https://www.googleapis.com/auth/spreadsheets'],
+            credentials: {
+                client_email: GOOGLE_CLIENT_EMAIL,
+                private_key: GOOGLE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
+            },
+            scopes: [GOOGLE_SCOPES!],
         });
         this.spreadsheetId = spreadsheetId;
     }
@@ -53,22 +62,7 @@ export class GoogleSheetsService {
         tariffs: WarehouseTariff[],
         sortBy: keyof WarehouseTariff = 'boxDeliveryBase',
     ): any[][] {
-        const sortedTariffs = [...tariffs].sort((a, b) => {
-            const aVal = a[sortBy];
-            const bVal = b[sortBy];
-
-            const aNum = this.parseToNumber(aVal);
-            const bNum = this.parseToNumber(bVal);
-
-            if (aNum !== null && bNum !== null) {
-                return aNum - bNum;
-            }
-
-            if (aNum === null && bNum !== null) return 1;
-            if (aNum !== null && bNum === null) return -1;
-
-            return a.warehouseName.localeCompare(b.warehouseName);
-        });
+        const sortedTariffs = sortTariffs(tariffs, sortBy);
 
         const headers = [
             'Warehouse Name',
@@ -87,27 +81,9 @@ export class GoogleSheetsService {
             tariff.boxDeliveryLiter,
             tariff.boxStorageBase,
             tariff.boxStorageLiter,
-            new Date().toISOString(),
+            formatReadableDate(new Date()),
         ]);
 
         return [headers, ...rows];
-    }
-
-    private parseToNumber(value: any): number | null {
-        if (value === null || value === undefined || value === '-') {
-            return null;
-        }
-
-        if (typeof value === 'number') {
-            return value;
-        }
-
-        if (typeof value === 'string') {
-            const normalizedValue = value.replace(',', '.');
-            const parsed = parseFloat(normalizedValue);
-            return isNaN(parsed) ? null : parsed;
-        }
-
-        return null;
     }
 }

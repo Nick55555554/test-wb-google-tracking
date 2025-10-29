@@ -1,11 +1,11 @@
 import env from '../env';
 
 const connection = {
-    host: env.POSTGRES_HOST || 'localhost',
-    port: env.POSTGRES_PORT || 5432,
-    database: env.POSTGRES_DB || 'postgres',
-    user: env.POSTGRES_USER || 'postgres',
-    password: env.POSTGRES_PASSWORD || 'postgres',
+    host: env.POSTGRES_HOST,
+    port: env.POSTGRES_PORT,
+    database: env.POSTGRES_DB,
+    user: env.POSTGRES_USER,
+    password: env.POSTGRES_PASSWORD,
 };
 
 module.exports = {

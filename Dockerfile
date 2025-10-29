@@ -24,6 +24,4 @@ COPY . .
 
 RUN pnpm run build
 
-COPY src/assets/ dist/assets/
-
 CMD sh -c "pnpm run migrate:latest && pnpm run start"
